@@ -1,35 +1,56 @@
 'use strict'
-
+// to cancel animation use cancelAnimationFrame
 const canvas = document.getElementById('canvas')
 const ctx = canvas.getContext('2d')
 const ratio = Math.ceil(window.devicePixelRatio)
-let size = window.innerWidth
+let height = window.innerHeight
+let width = window.innerWidth
 
-canvas.height = size * ratio
-canvas.width = size * ratio
-canvas.style.height = `${size}px`
-canvas.style.width = `${size}px`
+canvas.height = height * ratio
+canvas.width = width * ratio
+canvas.style.height = `${height}px`
+canvas.style.width = `${width}px`
 ctx.setTransform(ratio, 0, 0, ratio, 0, 0)
 
-function drawCircle(x, y, size){
-    ctx.arc(x, y, size, 0, Math.PI*2)
-    ctx.fill()
+
+let position = {
+    x: 0,
+    y: 0,
+    deltaX: 0,
+    deltaY: 0,
+    size: 20
 }
 
-let mouse = {
-    x: undefined,
-    y: undefined,
+let move = {
+    x: 0,
+    y: 0,
 }
-
-canvas.addEventListener('touchmove', function (event) {
-    let tuch = event.touches[0]
-    mouse.x = Math.ceil(tuch.clientX)
-    mouse.y = Math.ceil(tuch.clientY)
-})
 
 function animate(){
-    ctx.clearRect(0, 0, size, size)
-    drawCircle(mouse.x, mouse.y, 0)
+    if(position.x===move.x&&position.y===move.y){
+        cancelAnimationFrame()
+    }
+    if (position.x!==move.x){
+        ctx.fillRect(position.x, position.y, position.size, position.size)
+        position.x += position.deltaX
+    }
+    if (position.y!==move.y){
+        ctx.fillRect(position.x, position.y, position.size, position.size)
+        position.y += position.deltaY
+    }
     requestAnimationFrame(animate)
 }
-animate()
+
+function moveTo(x, y){
+    move.x = x 
+    move.y = y 
+    position.deltaX = position.x > x? -1 : 1
+    position.deltaY = position.y > y? -1 : 1
+    animate()
+}
+
+canvas.addEventListener('click', (event)=>{
+    moveTo(event.clientX, event.clientY)
+})
+
+ctx.fillRect(position.x, position.y, position.size, position.size)
